@@ -28,23 +28,26 @@ const SubscribeSection = () => {
     };
 
     return (
-        <div className="py-12 px-4 text-center">
-        <h2 className="text-xl font-semibold mb-4">출시 알림 신청</h2>
-        <p className="text-gray-500 mb-4">이메일 또는 전화번호를 남겨주세요.</p>
-        <form onSubmit={handleSubmit} className="flex justify-center gap-2 flex-wrap">
+        <section className="bg-white py-16 px-4 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">출시 알림 신청</h2>
+        <p className="text-sm text-gray-500 mb-8">이메일 또는 전화번호를 남겨주세요.</p>
+        <form onSubmit={handleSubmit} className="flex justify-center items-center flex-wrap gap-2">
             <input
             type="text"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
-            placeholder="example@email.com or 010-xxxx-xxxx"
-            className="border rounded px-4 py-2 w-64"
+            placeholder="example@email.com"
+            className="w-64 px-4 py-3 rounded-full border border-gray-300 shadow-sm focus:ring-pillblue-dark focus:ring-2 focus:outline-none"
             required
             />
-            <button type="submit" className="bg-emerald-500 text-white rounded px-4 py-2 hover:bg-emerald-600">
+            <button
+            type="submit"
+            className="bg-indigo-500 text-white rounded-full px-6 py-3 font-medium hover:bg-indigo-600 transition"
+            >
             알림 신청
             </button>
         </form>
-        </div>
+        </section>
     );
 };
 

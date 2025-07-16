@@ -2,18 +2,19 @@ import React from "react";
 
 const HeroSection = () => {
     return (
-        <div className="bg-emerald-500 text-white text-center py-20 px-4">
-        <h1 className="text-3xl md:text-5xl font-bold mb-4">
-            영양제·복용약 관리, Pill Live로 간편하게!
-        </h1>
-        <p className="text-lg md:text-xl mb-6">
-            까먹기 쉬운 40~50대 여성 / 바쁜 직장인을 위한 복약 관리 서비스
-        </p>
-        <button className="bg-white text-emerald-500 font-semibold py-3 px-6 rounded-full shadow-md hover:bg-gray-100 transition">
-            앱 출시 시 알림 받기
-        </button>
-        </div>
+        <section className="text-center py-20 px-4 bg-white">
+            <p className="text-sm text-gray-500 mb-2">약 먹는 시간 또 깜빡했나요?</p>
+            <h1 className="text-3xl md:text-4xl font-extrabold leading-tight mb-8">
+                AI와 함께하는{' '}
+                <span className="text-indigo-500">스마트 복약관리</span>
+            </h1>
+            <img src="/pilllive-appicon.png" alt="Pill Live App Icon" className="mx-auto w-24 h-24 mb-10" />
+            <button className="bg-indigo-500 text-white rounded-full px-6 py-3 font-medium hover:bg-indigo-600 transition">
+            똑똑한 복약 시작하기
+            </button>
+        </section>
     );
 };
+
 
 export default HeroSection;
