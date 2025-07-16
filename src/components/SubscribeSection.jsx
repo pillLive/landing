@@ -6,16 +6,25 @@ const SubscribeSection = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!contact) return;
-
-        // TODO: Slack Webhook 연동
-        await fetch("YOUR_SLACK_WEBHOOK_URL", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: `📥 Pill Live 신청: ${contact}` }),
-        });
-
-        alert("신청 완료! 출시 시 연락드리겠습니다.");
-        setContact("");
+    
+        try {
+            const res = await fetch("https://api.deckst.me/v1/slack/pilllive-notify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contact }),
+            });
+    
+            if (res.ok) {
+                alert("신청 완료! 출시 시 연락드리겠습니다.");
+                setContact("");
+            } else {
+                const error = await res.json();
+                alert(`신청 실패: ${error.message || "다시 시도해주세요."}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("네트워크 오류: 다시 시도해주세요.");
+        }
     };
 
     return (
