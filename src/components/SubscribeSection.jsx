@@ -23,13 +23,16 @@ const SubscribeSection = () => {
             if (res.ok) {
                 alert("신청 완료! 업데이트 시 연락드리겠습니다.");
                 setContact("");
+                setShowModal(false);
             } else {
                 const error = await res.json();
                 alert(`신청 실패: ${error.message || "다시 시도해주세요."}`);
+                setShowModal(false);
             }
         } catch (err) {
             console.error(err);
             alert("네트워크 오류: 다시 시도해주세요.");
+            setShowModal(false);
         }
     };
 
