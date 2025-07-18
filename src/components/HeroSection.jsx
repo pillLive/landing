@@ -17,10 +17,10 @@ const HeroSection = () => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center md:justify-start items-center gap-2 mt-4">
                 <button className="bg-blue-400 hover:bg-blue-500 text-white rounded-full px-6 py-3">
-                무료로 시작하기
+                <a href="#contact">무료로 시작하기</a>
                 </button>
                 <button className="border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-full px-6 py-3">
-                사용법 보기
+                <a href="#howto">사용법 보기</a>
                 </button>
             </div>
             <div className="mt-4 ml-2 flex items-center justify-center md:justify-start text-sm text-gray-500">
