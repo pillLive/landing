@@ -1,41 +1,89 @@
 import React from "react";
+import { Camera, Bell, Users, Shield, BarChart, Smartphone } from "lucide-react";
 
-const FeaturesSection = () => {
-    const features = [
-    { title: "사진 기반 약 등록", desc: "처방전 / 약봉투 촬영으로 AI 자동 분석" },
-    { title: "복약 알림", desc: "알람 설정으로 잊지 않고 복용" },
-    { title: "간단한 복약 인증", desc: "사진으로 복약 인증 가능" },
+const features = [
+    {
+        icon: <Camera size={20} />,
+        title: "사진 한장으로 간편 등록",
+        desc: "처방전이나 약봉지 사진만 찍으면 자동으로 복용 약물이 등록됩니다. 복잡한 입력은 필요 없어요!",
+        bg: "bg-blue-50",
+        iconBg: "bg-blue-100",
+        iconColor: "text-blue-500",
+    },
+    {
+        icon: <Bell size={20} />,
+        title: "스마트한 복용 알림",
+        desc: "개인 맞춤 시간에 정확한 알림을 받으세요. 약 복용을 절대 놓치지 마세요!",
+        bg: "bg-green-50",
+        iconBg: "bg-green-100",
+        iconColor: "text-green-500",
+    },
+    {
+        icon: <Users size={20} />,
+        title: "가족과 함께 관리",
+        desc: "가족 구성원들과 복약 정보를 공유하고 서로의 건강을 챙겨주세요.",
+        bg: "bg-orange-50",
+        iconBg: "bg-orange-100",
+        iconColor: "text-orange-500",
+    },
+    {
+        icon: <Shield size={20} />,
+        title: "안전한 개인정보 보호",
+        desc: "의료 정보는 철저히 암호화되어 보호됩니다. 개인정보 걱정 없이 안심하고 사용하세요.",
+        bg: "bg-purple-50",
+        iconBg: "bg-purple-100",
+        iconColor: "text-purple-500",
+    },
+    {
+        icon: <BarChart size={20} />,
+        title: "복용 기록 분석",
+        desc: "월간, 주간 복용 패턴을 한눈에 확인하고 건강한 복약 습관을 만들어가세요.",
+        bg: "bg-indigo-50",
+        iconBg: "bg-indigo-100",
+        iconColor: "text-indigo-500",
+    },
+    {
+        icon: <Smartphone size={20} />,
+        title: "언제나 간편하게",
+        desc: "스마트폰만 있으면 언제 어디서나 복약 관리가 가능합니다.",
+        bg: "bg-yellow-50",
+        iconBg: "bg-yellow-100",
+        iconColor: "text-yellow-500",
+    },
     ];
 
+    const FeatureSection = () => {
     return (
-        <>
-        {/* Features Section */}
-        <section className="bg-gray-50 py-4 px-4 text-center">
-        <p className="text-sm text-gray-500 mb-2">누구나 쉽게, 복잡한 설정 없이 시작</p>
-        <h2 className="text-2xl md:text-3xl font-bold mb-8">처방전이나 약봉투만 찍으면 끝!</h2>
+        <section id="service" className="py-16 px-4 bg-white">
+        <div className="max-w-screen-lg mx-auto text-center">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+            왜 <span className="text-blue-500">PillLive</span>를 선택해야 할까요?
+            </h2>
+            <p className="text-gray-500 mb-10">
+            복잡한 약 관리는 이제 그만! 우리 가족 모두 쉽게 사용할 수 있는 서비스입니다.
+            </p>
 
-            <img src="/pilllive-capture.png" alt="촬영 화면" className="rounded-xl shadow-md mx-auto max-w-sm" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {features.map((feature, idx) => (
+                <div
+                key={idx}
+                className={`rounded-xl ${feature.bg} p-6 text-center shadow hover:shadow-md transition`}
+                >
+                {/* 아이콘 */}
+                <div className={`w-12 h-12 mx-auto mb-4 flex items-center justify-center rounded-xl ${feature.iconBg} ${feature.iconColor}`}>
+                    {feature.icon}
+                </div>
+                {/* 제목 */}
+                <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
+                {/* 설명 */}
+                <p className="text-sm text-gray-600">{feature.desc}</p>
+                </div>
+            ))}
+            </div>
+
+        </div>
         </section>
-
-        {/* Alarm Setup Section */}
-        <section className="bg-white py-16 px-4 text-center">
-        <p className="text-sm text-gray-500 mb-2">내 생활 패턴을 분석한 맞춤 복약시간</p>
-        <h2 className="text-2xl md:text-3xl font-bold mb-8">AI 알람으로 놓치지 않고 챙기기</h2>
-
-        <img src="/pilllive-alarm.png" alt="알람 설정 화면" className="rounded-xl shadow-md mx-auto max-w-sm" />
-        </section>
-
-        {/* Dashboard Section */}
-        <section className="bg-gray-50 py-16 px-4 text-center">
-        <p className="text-sm text-gray-500 mb-2">하루하루 영양 관리가 한눈에</p>
-        <h2 className="text-2xl md:text-3xl font-bold mb-8">쉽고 직관적인 복약 대시보드</h2>
-
-        <img src="/pilllive-dashboard.png" alt="홈 화면" className="rounded-xl shadow-md mx-auto max-w-sm" />
-        </section>
-
-        </>
     );
 };
 
-
-export default FeaturesSection;
+export default FeatureSection;

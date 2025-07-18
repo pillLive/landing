@@ -1,20 +1,45 @@
 import React from "react";
+import IntroCard from "../card/IntroCard";
 
 const HeroSection = () => {
     return (
-        <section className="text-center py-20 px-4 bg-white">
-            <p className="text-sm text-gray-500 mb-2">약 먹는 시간 또 깜빡했나요?</p>
-            <h1 className="text-3xl md:text-4xl font-extrabold leading-tight mb-8">
-                AI와 함께하는{' '}
-                <span className="text-indigo-500">스마트 복약관리</span>
+        <section className="w-full bg-gradient-to-b pt-8 from-[#e7edf3]/80 to-[#e7f3ef]/80">
+        <div className="max-w-screen-lg mx-auto px-4 py-20 flex flex-col-reverse md:flex-row items-center">
+            {/* Left Text */}
+            <div className="w-full md:w-1/2 text-center md:text-left space-y-5">
+            <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">
+                <span className="text-blue-500">사진 한장</span>으로 시작하는
+                <br />
+                <span className="text-emerald-500">개인 복약관리</span>
             </h1>
-            <img src="/pilllive-appicon.png" alt="Pill Live App Icon" className="mx-auto w-24 h-24 mb-10" />
-            <button className="bg-indigo-500 text-white rounded-full px-6 py-3 font-medium hover:bg-indigo-600 transition">
-            똑똑한 복약 시작하기
-            </button>
+            <p className="text-gray-600">
+                약봉투(처방전) 사진만 찍으면 끝!<br/>가족과 함께하는 스마트한 약 복용 알림 서비스
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center md:justify-start items-center gap-2 mt-4">
+                <button className="bg-blue-400 hover:bg-blue-500 text-white rounded-full px-6 py-3">
+                무료로 시작하기
+                </button>
+                <button className="border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-full px-6 py-3">
+                사용법 보기
+                </button>
+            </div>
+            <div className="mt-4 ml-2 flex items-center justify-center md:justify-start text-sm text-gray-500">
+                <div className="flex -space-x-1 mr-2">
+                <span className="w-3 h-3 rounded-full bg-blue-400"></span>
+                <span className="w-3 h-3 rounded-full bg-green-400"></span>
+                <span className="w-3 h-3 rounded-full bg-orange-400"></span>
+                </div>
+                1,000+ 가족들이 함께 사용 중
+            </div>
+            </div>
+
+            {/* Right Image */}
+            <div className="w-full md:w-1/2 mb-8 md:mb-0 flex justify-center">
+                <IntroCard />
+            </div>
+        </div>
         </section>
     );
 };
-
 
 export default HeroSection;
