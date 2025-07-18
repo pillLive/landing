@@ -6,6 +6,8 @@ import Topbar from "./components/Topbar";
 import ProcessSection from "./components/ProcessSection";
 import TargetSection from "./components/TargetSection";
 import ReviewSection from "./components/ReviewSection";
+import SupportSection from "./components/SupportSection";
+import FooterSection from "./components/FooterSection";
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
       <TargetSection />
       <ReviewSection />
       <SubscribeSection />
+      <SupportSection />
+      <FooterSection />
     </div>
   );
 }

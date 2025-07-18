@@ -39,7 +39,7 @@ const reviews = [
 
 const ReviewSection = () => {
     return (
-    <section id="reviews" className="py-16 px-4 bg-blue-50">
+    <section id="review" className="py-16 px-4 bg-blue-50">
         <div className="max-w-screen-lg mx-auto text-center mb-8">
         <h2 className="text-2xl md:text-3xl font-bold mb-2">
             <span className="text-blue-500">실제 사용자 후기</span>

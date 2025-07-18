@@ -34,7 +34,7 @@ const SubscribeSection = () => {
     };
 
     return (
-        <section className="py-16 px-4 bg-gray-50 text-center">
+        <section id="contact" className="py-16 px-4 bg-gray-50 text-center">
         <h2 className="text-2xl md:text-3xl font-bold mb-2">지금 바로 시작하세요!</h2>
         <p className="text-gray-500 mb-6">
             가족과 함께하는 스마트한 복약관리, PillLive로 건강한 일상을 만들어보세요
