@@ -10,7 +10,7 @@ const HeroSection = () => {
             <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">
                 <span className="text-blue-500">사진 한장</span>으로 시작하는
                 <br />
-                <span className="text-emerald-500">개인 복약관리</span>
+                <span className="text-emerald-500">건강 알람 ⏰</span>
             </h1>
             <p className="text-gray-600">
                 약봉투(처방전) 사진만 찍으면 끝!<br/>가족과 함께하는 스마트한 약 복용 알림 서비스
