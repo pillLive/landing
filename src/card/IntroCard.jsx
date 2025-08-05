@@ -5,7 +5,7 @@ const IntroCard = () => {
     return (
         <div className="w-full max-w-sm mx-auto bg-white rounded-2xl shadow-lg p-6 space-y-4">
         <div className="text-center">
-            <h3 className="text-blue-500 font-bold text-lg">PillLive</h3>
+            <h3 className="text-blue-500 font-bold text-lg">PillLive-약속시간</h3>
             <p className="text-gray-500 text-sm">복약 관리 서비스</p>
         </div>
         <div className="space-y-3">

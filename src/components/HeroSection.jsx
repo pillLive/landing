@@ -13,7 +13,7 @@ const HeroSection = () => {
                 <span className="text-emerald-500">건강 알람 ⏰</span>
             </h1>
             <p className="text-gray-600">
-                약봉투(처방전) 사진만 찍으면 끝!<br/>가족과 함께하는 스마트한 약 복용 알림 서비스
+                약봉투(처방전) 사진 한 장으로,<br/>소중한 가족의 건강을 함께 지켜주세요.
             </p>
             <div className="flex flex-col sm:flex-row justify-center md:justify-start items-center gap-2 mt-4">
                 <button className="bg-blue-400 hover:bg-blue-500 text-white rounded-full px-6 py-3">
