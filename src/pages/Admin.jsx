@@ -10,6 +10,8 @@ import {
   ChevronUp,
   Send,
   RefreshCw,
+  X,
+  Users,
 } from "lucide-react";
 
 const Admin = () => {
@@ -26,6 +28,7 @@ const Admin = () => {
     complianceRate: null, // "under300" | "over300"
     remainingDays: null, // "under3days" | "notRegistered"
     membership: null, // "member" | "trialEnding" | "cancelled"
+    language: null, // "ko" | "en" | "ja" | "zh"
   });
   const [allUsers, setAllUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,6 +36,11 @@ const Admin = () => {
   const [messageContent, setMessageContent] = useState(
     "우리 약통 만들고 우리 가족의 건강을 돌봐주세요 ☺️"
   );
+  const [selectedUserIds, setSelectedUserIds] = useState(new Set());
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
 
   // 자주 쓰는 프리셋
@@ -129,7 +137,7 @@ const Admin = () => {
       // 비밀번호를 base64로 인코딩
       const encodedPassword = btoa(password);
 
-      const response = await fetch("https://v2.pilllive.com/api/admin/verify", {
+      const response = await fetch("https:/v2.pilllive.com/api/admin/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -162,7 +170,7 @@ const Admin = () => {
   const fetchUsers = async () => {
     setIsLoadingUsers(true);
     try {
-      const response = await fetch("https://v2.pilllive.com/api/admin/users", {
+      const response = await fetch("https:/v2.pilllive.com/api/admin/users", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -271,6 +279,11 @@ const Admin = () => {
       });
     }
 
+    // 5. 언어 필터링
+    if (filters.language) {
+      filtered = filtered.filter((user) => user.lang === filters.language);
+    }
+
     // 검색 필터링
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -291,6 +304,64 @@ const Admin = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, searchQuery, allUsers.length]);
+
+  // 메시지 전송 함수
+  const handleSendMessage = async () => {
+    if (selectedUserIds.size === 0) {
+      setErrorMessage("선택된 유저가 없습니다.");
+      setShowErrorModal(true);
+      return;
+    }
+
+    if (!messageTitle.trim() || !messageContent.trim()) {
+      setErrorMessage("제목과 내용을 입력해주세요.");
+      setShowErrorModal(true);
+      return;
+    }
+
+    setIsSendingMessage(true);
+
+    try {
+      const userIdList = Array.from(selectedUserIds);
+      const body = {
+        userIdList: userIdList,
+        title: messageTitle,
+        body: messageContent,
+      }
+      console.log(body);
+      const response = await fetch("https://v2.pilllive.com/api/fcm/sendFcmAdmin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userIdList: userIdList,
+          title: messageTitle,
+          body: messageContent,
+        }),
+      });
+      
+      
+
+      if (response.ok) {
+        setShowSuccessModal(true);
+        // 성공 시 선택 해제
+        setSelectedUserIds(new Set());
+      } else {
+        const errorData = await response.json();
+        setErrorMessage(
+          errorData.message || "메시지 전송에 실패했습니다."
+        );
+        setShowErrorModal(true);
+      }
+    } catch (err) {
+      setErrorMessage("메시지 전송 중 오류가 발생했습니다.");
+      setShowErrorModal(true);
+      console.error("Send message error:", err);
+    } finally {
+      setIsSendingMessage(false);
+    }
+  };
 
   // 로그인 화면
   if (!isAuthenticated) {
@@ -364,265 +435,348 @@ const Admin = () => {
           </div>
 
           <div className="bg-white rounded-lg shadow-sm mb-6">
-            <button
-              onClick={() => setIsFilterExpanded(!isFilterExpanded)}
-              className="w-full flex items-center justify-between p-6 hover:bg-blue-50 transition-colors"
-            >
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between p-6">
+              <div className="flex items-center gap-2 flex-1">
                 <Filter className="w-5 h-5 text-blue-600" />
                 <h2 className="text-lg font-semibold text-gray-800">
                   타겟 세그먼트 필터링
                 </h2>
-              </div>
-              {isFilterExpanded ? (
-                <ChevronUp className="w-5 h-5 text-gray-500" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-gray-500" />
-              )}
-            </button>
-            {isFilterExpanded && (
-              <div className="px-6 pb-6 space-y-6">
-                {/* 필터링 없음 */}
-                <div className="flex items-center gap-4">
-                  <div className="w-24 text-sm font-medium text-gray-700">
-                    필터링 없음
-                  </div>
+                {isFilterExpanded && (
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setFilters({
                         noFilter: true,
                         accessPeriod: null,
                         complianceRate: null,
                         remainingDays: null,
                         membership: null,
+                        language: null,
                       });
                     }}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      filters.noFilter
-                        ? "bg-blue-600 text-white"
-                        : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-                    }`}
+                    className="ml-4 px-3 py-1 text-xs text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                   >
-                    필터링 없음
+                    필터링 해제하기
                   </button>
-                </div>
-
-                {/* 접속 기간 */}
-                <div className="flex items-center gap-4">
-                  <div className="w-24 text-sm font-medium text-gray-700">
-                    접속 기간
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        setFilters({
-                          ...filters,
-                          noFilter: false,
-                          accessPeriod:
+                )}
+              </div>
+              <button
+                onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+                className="p-1 hover:bg-blue-50 rounded transition-colors"
+              >
+                {isFilterExpanded ? (
+                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                )}
+              </button>
+            </div>
+            {isFilterExpanded && (
+              <div className="px-6 pb-6 space-y-4">
+                {/* 2열 그리드 */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* 왼쪽 열 */}
+                  <div className="space-y-4">
+                    {/* 접속 기간 */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 text-sm font-medium text-gray-700">
+                        접속 기간
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              accessPeriod:
+                                filters.accessPeriod === "within1week"
+                                  ? null
+                                  : "within1week",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
                             filters.accessPeriod === "within1week"
-                              ? null
-                              : "within1week",
-                        });
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                        filters.accessPeriod === "within1week"
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <Clock className="w-4 h-4" />
-                      1주일 내 접속
-                    </button>
-                    <button
-                      onClick={() => {
-                        setFilters({
-                          ...filters,
-                          noFilter: false,
-                          accessPeriod:
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <Clock className="w-3 h-3" />
+                          1주일 내
+                        </button>
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              accessPeriod:
+                                filters.accessPeriod === "over1week"
+                                  ? null
+                                  : "over1week",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
                             filters.accessPeriod === "over1week"
-                              ? null
-                              : "over1week",
-                        });
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                        filters.accessPeriod === "over1week"
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <Clock className="w-4 h-4" />
-                      1주일 이상 미접속
-                    </button>
-                  </div>
-                </div>
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <Clock className="w-3 h-3" />
+                          1주일 이상
+                        </button>
+                      </div>
+                    </div>
 
-                {/* 복약 이행률 */}
-                <div className="flex items-center gap-4">
-                  <div className="w-24 text-sm font-medium text-gray-700">
-                    복약 이행률
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        setFilters({
-                          ...filters,
-                          noFilter: false,
-                          complianceRate:
-                            filters.complianceRate === "under300"
-                              ? null
-                              : "under300",
-                        });
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                        filters.complianceRate === "under300"
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                      이행률 50% 미만
-                    </button>
-                    <button
-                      onClick={() => {
-                        setFilters({
-                          ...filters,
-                          noFilter: false,
-                          complianceRate:
-                            filters.complianceRate === "over300"
-                              ? null
-                              : "over300",
-                        });
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                        filters.complianceRate === "over300"
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                      3일 연속 100%
-                    </button>
-                  </div>
-                </div>
-
-                {/* 약통 잔여량 */}
-                <div className="flex items-center gap-4">
-                  <div className="w-24 text-sm font-medium text-gray-700">
-                    약통 잔여량
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        setFilters({
-                          ...filters,
-                          noFilter: false,
-                          remainingDays:
+                    {/* 약통 잔여량 */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 text-sm font-medium text-gray-700">
+                        약통 잔여량
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              remainingDays:
+                                filters.remainingDays === "under3days"
+                                  ? null
+                                  : "under3days",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
                             filters.remainingDays === "under3days"
-                              ? null
-                              : "under3days",
-                        });
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                        filters.remainingDays === "under3days"
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <Pill className="w-4 h-4" />
-                      약 잔여 3일 이하
-                    </button>
-                    <button
-                      onClick={() => {
-                        setFilters({
-                          ...filters,
-                          noFilter: false,
-                          remainingDays:
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <Pill className="w-3 h-3" />
+                          3일 이하
+                        </button>
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              remainingDays:
+                                filters.remainingDays === "notRegistered"
+                                  ? null
+                                  : "notRegistered",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
                             filters.remainingDays === "notRegistered"
-                              ? null
-                              : "notRegistered",
-                        });
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                        filters.remainingDays === "notRegistered"
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <Pill className="w-4 h-4" />
-                      가입 후 미등록
-                    </button>
-                  </div>
-                </div>
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <Pill className="w-3 h-3" />
+                          미등록
+                        </button>
+                      </div>
+                    </div>
 
-                {/* 멤버십 기능 */}
-                <div className="flex items-center gap-4">
-                  <div className="w-24 text-sm font-medium text-gray-700">
-                    멤버십 기능
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        setFilters({
-                          ...filters,
-                          noFilter: false,
-                          membership:
-                            filters.membership === "member" ? null : "member",
-                        });
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                        filters.membership === "member"
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <FileText className="w-4 h-4" />
-                      멤버십 회원
-                    </button>
-                    <button
-                      onClick={() => {
-                        setFilters({
-                          ...filters,
-                          noFilter: false,
-                          membership:
+                    {/* 멤버십 기능 */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 text-sm font-medium text-gray-700">
+                        멤버십
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              membership:
+                                filters.membership === "member"
+                                  ? null
+                                  : "member",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                            filters.membership === "member"
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <FileText className="w-3 h-3" />
+                          회원
+                        </button>
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              membership:
+                                filters.membership === "trialEnding"
+                                  ? null
+                                  : "trialEnding",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
                             filters.membership === "trialEnding"
-                              ? null
-                              : "trialEnding",
-                        });
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                        filters.membership === "trialEnding"
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <FileText className="w-4 h-4" />
-                      체험 종료 임박
-                    </button>
-                    <button
-                      onClick={() => {
-                        setFilters({
-                          ...filters,
-                          noFilter: false,
-                          membership:
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <FileText className="w-3 h-3" />
+                          종료임박
+                        </button>
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              membership:
+                                filters.membership === "cancelled"
+                                  ? null
+                                  : "cancelled",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
                             filters.membership === "cancelled"
-                              ? null
-                              : "cancelled",
-                        });
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                        filters.membership === "cancelled"
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <FileText className="w-4 h-4" />
-                      구독 취소자
-                    </button>
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <FileText className="w-3 h-3" />
+                          취소자
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 오른쪽 열 */}
+                  <div className="space-y-4">
+                    {/* 복약 이행률 */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 text-sm font-medium text-gray-700">
+                        복약 이행률
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              complianceRate:
+                                filters.complianceRate === "under300"
+                                  ? null
+                                  : "under300",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                            filters.complianceRate === "under300"
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <CheckCircle className="w-3 h-3" />
+                          50% 미만
+                        </button>
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              complianceRate:
+                                filters.complianceRate === "over300"
+                                  ? null
+                                  : "over300",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                            filters.complianceRate === "over300"
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <CheckCircle className="w-3 h-3" />
+                          3일 100%
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 다국어 */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 text-sm font-medium text-gray-700">
+                        다국어
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              language:
+                                filters.language === "ko" ? null : "ko",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            filters.language === "ko"
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          한국어
+                        </button>
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              language:
+                                filters.language === "en" ? null : "en",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            filters.language === "en"
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          영어
+                        </button>
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              language:
+                                filters.language === "ja" ? null : "ja",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            filters.language === "ja"
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          일본어
+                        </button>
+                        <button
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              noFilter: false,
+                              language:
+                                filters.language === "zh" ? null : "zh",
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            filters.language === "zh"
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          중국어
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 {/* 검색 */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 pt-2">
                   <div className="w-24"></div>
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -665,7 +819,26 @@ const Admin = () => {
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                        선택
+                        <input
+                          type="checkbox"
+                          checked={
+                            users.length > 0 &&
+                            selectedUserIds.size === users.length
+                          }
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              // 전체 선택
+                              const allIds = new Set(
+                                users.map((user) => user.userId)
+                              );
+                              setSelectedUserIds(allIds);
+                            } else {
+                              // 전체 해제
+                              setSelectedUserIds(new Set());
+                            }
+                          }}
+                          className="rounded"
+                        />
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
                         프로필
@@ -710,7 +883,20 @@ const Admin = () => {
                       users.map((user, index) => (
                         <tr key={index} className="hover:bg-gray-50">
                           <td className="px-4 py-3">
-                            <input type="checkbox" className="rounded" />
+                            <input
+                              type="checkbox"
+                              checked={selectedUserIds.has(user.userId)}
+                              onChange={(e) => {
+                                const newSelected = new Set(selectedUserIds);
+                                if (e.target.checked) {
+                                  newSelected.add(user.userId);
+                                } else {
+                                  newSelected.delete(user.userId);
+                                }
+                                setSelectedUserIds(newSelected);
+                              }}
+                              className="rounded"
+                            />
                           </td>
                           <td className="px-4 py-3">
                             <img
@@ -863,11 +1049,113 @@ const Admin = () => {
             </div>
           </div>
 
-          <button className="w-full py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          {/* 선택된 유저 표시 */}
+          {selectedUserIds.size > 0 && (
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium text-gray-800">
+                    발송 대상 ({selectedUserIds.size}명)
+                  </span>
+                </div>
+                <button
+                  onClick={() => setSelectedUserIds(new Set())}
+                  className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                  title="전체 선택 해제"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {users
+                  .filter((user) => selectedUserIds.has(user.userId))
+                  .map((user) => (
+                    <div
+                      key={user.userId}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full border border-blue-300 text-sm text-gray-800"
+                    >
+                      <span>{user.nickname}</span>
+                      <button
+                        onClick={() => {
+                          const newSelected = new Set(selectedUserIds);
+                          newSelected.delete(user.userId);
+                          setSelectedUserIds(newSelected);
+                        }}
+                        className="text-gray-400 hover:text-red-600 transition-colors"
+                        title="제거"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={handleSendMessage}
+            disabled={isSendingMessage}
+            className="w-full py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             메시지 전송하기
           </button>
         </div>
       </div>
+
+      {/* 로딩 오버레이 */}
+      {isSendingMessage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 flex flex-col items-center gap-4">
+            <RefreshCw className="w-8 h-8 text-blue-600 animate-spin" />
+            <p className="text-lg font-medium text-gray-800">푸시 보내는중</p>
+          </div>
+        </div>
+      )}
+
+      {/* 성공 모달 */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800">전송 완료</h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              메시지가 성공적으로 전송되었습니다.
+            </p>
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 실패 모달 */}
+      {showErrorModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <X className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800">전송 실패</h3>
+            </div>
+            <p className="text-gray-600 mb-6">{errorMessage}</p>
+            <button
+              onClick={() => setShowErrorModal(false)}
+              className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
