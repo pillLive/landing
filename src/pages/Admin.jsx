@@ -110,11 +110,11 @@ const Admin = () => {
     return sourceMap[source] || source;
   };
 
-  // 닉네임 자르기 (10자 이상이면 ...)
+  // 닉네임 자르기 (20자 이상이면 ...)
   const truncateNickname = (nickname) => {
     if (!nickname) return "-";
-    if (nickname.length > 10) {
-      return nickname.substring(0, 10) + "...";
+    if (nickname.length > 20) {
+      return nickname.substring(0, 20) + "...";
     }
     return nickname;
   };
