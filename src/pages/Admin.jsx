@@ -19,6 +19,14 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isDevMode, setIsDevMode] = useState(false);
+
+  // API 베이스 URL 가져오기
+  const getApiBaseUrl = () => {
+    return isDevMode
+      ? "https://api.pilllive.com"
+      : "https://v2.pilllive.com";
+  };
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
@@ -137,7 +145,7 @@ const Admin = () => {
       // 비밀번호를 base64로 인코딩
       const encodedPassword = btoa(password);
 
-      const response = await fetch("https:/v2.pilllive.com/api/admin/verify", {
+      const response = await fetch(`${getApiBaseUrl()}/api/admin/verify`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -160,6 +168,12 @@ const Admin = () => {
     }
   };
 
+  // Dev 모드 로그인 핸들러
+  const handleDevLogin = () => {
+    setIsDevMode(true);
+    setIsAuthenticated(true);
+  };
+
   // 로그인 성공 후 사용자 데이터 가져오기
   useEffect(() => {
     if (isAuthenticated) {
@@ -170,7 +184,7 @@ const Admin = () => {
   const fetchUsers = async () => {
     setIsLoadingUsers(true);
     try {
-      const response = await fetch("https:/v2.pilllive.com/api/admin/users", {
+      const response = await fetch(`${getApiBaseUrl()}/api/admin/users`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -329,7 +343,7 @@ const Admin = () => {
         body: messageContent,
       }
       console.log(body);
-      const response = await fetch("https://v2.pilllive.com/api/fcm/sendFcmAdmin", {
+      const response = await fetch(`${getApiBaseUrl()}/api/fcm/sendFcmAdmin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -398,6 +412,12 @@ const Admin = () => {
               {isLoading ? "로그인 중..." : "로그인"}
             </button>
           </form>
+          <button
+            onClick={handleDevLogin}
+            className="w-full mt-3 py-2 px-4 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+          >
+            Dev 모드 로그인
+          </button>
         </div>
       </div>
     );
