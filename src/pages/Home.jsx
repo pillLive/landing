@@ -1,6 +1,5 @@
 import React from "react";
 import HeroSection from "../components/HeroSection";
-import FeaturesSection from "../components/FeaturesSection";
 import SubscribeSection from "../components/SubscribeSection";
 import Topbar from "../components/Topbar";
 import ProcessSection from "../components/ProcessSection";
@@ -10,10 +9,9 @@ import FooterSection from "../components/FooterSection";
 
 const Home = () => {
     return (
-        <div>
+        <div className="bg-[#FCF8F6]">
             <Topbar />
             <HeroSection />
-            <FeaturesSection />
             <ProcessSection />
             <TargetSection />
             <ReviewSection />
