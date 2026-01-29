@@ -1,13 +1,9 @@
 import React, { useState } from "react";
-import { Apple, Smartphone, Gift, X, Shield, Bell, Users } from "lucide-react";
+import { Apple, Smartphone, Gift, X, Shield, Bell } from "lucide-react";
 
 const SubscribeSection = () => {
     const [contact, setContact] = useState("");
     const [showModal, setShowModal] = useState(false);
-
-    const handleClick = () => {
-        setShowModal(true);
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();

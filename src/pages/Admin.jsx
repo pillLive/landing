@@ -28,7 +28,6 @@ const Admin = () => {
       : "https://v2.pilllive.com";
   };
   const [users, setUsers] = useState([]);
-  const [pagination, setPagination] = useState(null);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [filters, setFilters] = useState({
     noFilter: true,
@@ -100,15 +99,6 @@ const Admin = () => {
     return `${year}.${month}.${day}`;
   };
 
-  // 소스 이름 변환
-  const getSourceName = (source) => {
-    const sourceMap = {
-      kakao: "카카오",
-      google: "구글",
-      apple: "애플",
-    };
-    return sourceMap[source] || source;
-  };
 
   // 닉네임 자르기 (20자 이상이면 ...)
   const truncateNickname = (nickname) => {
@@ -179,6 +169,7 @@ const Admin = () => {
     if (isAuthenticated) {
       fetchUsers();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   const fetchUsers = async () => {
@@ -198,7 +189,6 @@ const Admin = () => {
           const fetchedUsers = result.data.users || [];
           setAllUsers(fetchedUsers);
           setUsers(fetchedUsers);
-          setPagination(result.data.pagination || null);
         }
       } else {
         console.error("Failed to fetch users");
